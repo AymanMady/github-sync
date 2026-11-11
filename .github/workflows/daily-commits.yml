@@ -1,0 +1,48 @@
+name: daily-commits
+
+on:
+  schedule:
+    - cron: "23 8 * * *"   # every day at 08:23 UTC
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Dry run (show diffs, no push)"
+        type: boolean
+        default: true
+
+permissions:
+  contents: write   # to commit history.jsonl to this repo
+  models: read      # free GitHub Models access via GITHUB_TOKEN
+
+concurrency:
+  group: daily-commits
+  cancel-in-progress: false
+
+jobs:
+  commit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Small commits on the data-engineering repos
+        env:
+          GH_PAT: ${{ secrets.GH_PAT }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          DRY_RUN: ${{ github.event_name == 'workflow_dispatch' && inputs.dry_run && '1' || '0' }}
+        run: python sync.py
+
+      # Commits the history: lets the script skip files it touched recently
+      # and keeps the repo "active" (GitHub disables crons after 60 days of inactivity).
+      - name: Save history
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add history.jsonl 2>/dev/null || exit 0
+          git diff --cached --quiet && exit 0
+          git commit -m "chore: update history"
+          git push

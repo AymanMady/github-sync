@@ -1,0 +1,20 @@
+{
+  "repos": [
+    "AymanMady/airflow-etl-pipeline",
+    "AymanMady/data-warehouse-E-commerce-dbt",
+    "AymanMady/kafka-streaming-pipeline",
+    "AymanMady/lakehouse-medallion",
+    "AymanMady/sales-pipeline",
+    "AymanMady/spark-data-lake"
+  ],
+  "author_name": "Bechir Mady",
+  "author_email": "126827455+AymanMady@users.noreply.github.com",
+  "model": "openai/gpt-4.1-mini",
+  "min_commits": 1,
+  "max_commits": 3,
+  "max_changed_lines": 40,
+  "max_file_chars": 9000,
+  "pause_seconds": [20, 90],
+  "exclude_prefixes": [".github/", "reports/", "data/", "dbt_packages/", "target/"],
+  "skip_recent": 40
+}
